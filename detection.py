@@ -65,52 +65,57 @@ def detect(gray, frame, sizelist):
 
         left = (leftR + leftL)/2
         right = (rightR + rightL)/2
-        print("left eye size is {} \nright eye size is {}\n\n".format(left, right))
+        print("left eye size is {} \nright eye size is {}".format(left, right))
 
         eye_avg = (left + right) / 2
-        print(eye_avg)
+        print("eye average is ", eye_avg)
         while len(sizelist) != 500:
             sizelist.append(eye_avg)
             break
         sorted_size = sorted(sizelist)
         max_values = sorted_size[-50:]
-        average = sum(max_values) / len(max_values)
-
-        cv2.putText(frame, str(average), (10, 50), cv2.FONT_HERSHEY_SIMPLEX , 1, (0, 0, 255), 2)
+        max_average = sum(max_values) / len(max_values)
+        print("max eye average is ", max_average)
+        #cv2.putText(frame, str(max_average), (10, 50), cv2.FONT_HERSHEY_SIMPLEX , 1, (0, 0, 255), 2)
 
 def lying_detection(image, pt1, pt2, pt3):
     # 모든 점이 존재하는 경우에만 라인을 그립니다.
     if pt1 is not None and pt2 is not None and pt3 is not None:
+        #time_left, time_right, begin_right, begin_left, end_left, end_right = 0
         text1 = "Lying Left"
         text2 = "Lying Right"
         text3 = "Lying prone"
-        begin_right = 0
-        begin_left = 0
         cv2.line(image, pt1, pt2, (0, 255, 0), 2)
         cv2.line(image, pt2, pt3, (0, 255, 0), 2)
         print("chest is ", pt2)
         print("arm1 is ", pt1)
         print("arm2 is ", pt3)
+
+        # ****left ****
         if pt1[0] > pt2[0] and pt3[0] > pt2[0]:
             #cv2.putText(image, text1, (10, 50), cv2.FONT_HERSHEY_SIMPLEX , 1, (0, 0, 255), 2)
             print(text1)
             begin_left = time.time()
-        end_left = time.time()
-        print("lying left time" + str(end_left - begin_left))
-        if begin_left != 0:
-            result_left =  round(end_left - begin_left),2
-            #if result_left >= 60:
-                #응애 자고있음 -> 쿼리문 날려야함
+            end_left = time.time()
+            if begin_left != 0:
+                time_left =  round(end_left - begin_left,2)
+                print("left lying time is ", time_left)
+                #if result_left >= 60:
+                    #응애 자고있음 -> 쿼리문 날려야함
+
+        # ****right****
         if pt1[0] < pt2[0] and pt3[0] < pt2[0]:
             #cv2.putText(image, text2, (10, 50), cv2.FONT_HERSHEY_SIMPLEX , 1, (0, 0, 255), 2)
             print(text2)
             begin_right = time.time()
-        end_right = time.time()
-        print("lying right time" + str(end_right - begin_right))
-        if begin_right != 0:
-            result_right = round(end_right - begin_right),2
-            #if result_left >= 60:
-                #응애 자고있음 -> 쿼리문 날려야함
+            end_right = time.time()
+            if begin_right != 0:
+                time_right = round(end_right - begin_right,2)
+                print("right lying time is ", time_right)
+                #if result_left >= 60:
+                    #응애 자고있음 -> 쿼리문 날려야함
+
+        # ****prone****
         # if pt1[0] > pt3[0]:
         #     cv2.putText(image, text3, (10, 50), cv2.FONT_HERSHEY_SIMPLEX , 1, (0, 0, 255), 2)
 
@@ -160,6 +165,7 @@ while cv2.waitKey(1) < 0:
     lying_detection(frame, points[3], points[14], points[6])
 
     cv2.imshow("result", frame)
+    print("\n\n\n")
 
 capture.release()  #카메라 장치에서 받아온 메모리 해제
 cv2.destroyAllWindows() #모든 윈도우 창 닫음
