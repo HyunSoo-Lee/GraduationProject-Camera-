@@ -1,7 +1,5 @@
 import cv2
 from pathlib import Path
-import numpy as np
-import matplotlib.pyplot as plt
 import time
 
 # MPII에서 각 파트 번호, 선으로 연결될 POSE_PAIRS
@@ -70,16 +68,12 @@ inputScale=1.0/255;
 while cv2.waitKey(1) <0:  #아무 키나 누르면 끝난다.
     #웹캠으로부터 영상 가져옴
     hasFrame, frame = capture.read()  
-    
-    #영상이 커서 느리면 사이즈를 줄이자
-    #frame=cv2.resize(frame,dsize=(320,240),interpolation=cv2.INTER_AREA)
+    # frame=cv2.resize(frame,dsize=(320,240),interpolation=cv2.INTER_AREA)
     
     #웹캠으로부터 영상을 가져올 수 없으면 웹캠 중지
     if not hasFrame:
         cv2.waitKey()
         break
-    
-    # 
     frameWidth = frame.shape[1]
     frameHeight = frame.shape[0]
     
