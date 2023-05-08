@@ -1,6 +1,7 @@
 import cv2
 from pathlib import Path
 import time
+import db_connect as db
 
 # MPII에서 각 파트 번호, 선으로 연결될 POSE_PAIRS
 BODY_PARTS = { "Head": 0, "Neck": 1, "RShoulder": 2, "RElbow": 3, "RWrist": 4,
@@ -22,37 +23,36 @@ weightsFile = "C:/Users/ocean/Desktop/dev/python/opse/pose_iter_160000.caffemode
 net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
 
 #점 사이 그리기
-def lying_detection(image, pt1, pt2, pt3):
+def lying_detection(image, pt1, pt2, pt3, position):
     # 모든 점이 존재하는 경우에만 라인을 그립니다.
     if pt1 is not None and pt2 is not None and pt3 is not None:
         text1 = "Lying Left"
         text2 = "Lying Right"
         text3 = "Lying prone"
-        begin_right = 0
-        begin_left = 0
         cv2.line(image, pt1, pt2, (0, 255, 0), 2)
         cv2.line(image, pt2, pt3, (0, 255, 0), 2)
-        print("chest is ", pt2)
-        print("arm1 is ", pt1)
-        print("arm2 is ", pt3)
+        # print("chest is ", pt2)
+        # print("arm1 is ", pt1)
+        # print("arm2 is ", pt3)
         if pt1[0] > pt2[0] and pt3[0] > pt2[0]:
             cv2.putText(image, text1, (10, 50), cv2.FONT_HERSHEY_SIMPLEX , 1, (0, 0, 255), 2)
-            begin_left = time.time()
-        end_left = time.time()
-        if begin_left != 0:
-            result_left =  round(end_left - begin_left),2
-            #if result_left >= 60:
-                #응애 자고있음 -> 쿼리문 날려야함
+            if position != 1:
+                print("append db")
+                sleep_val = db.find_row('sleep_time', 'user_id', 1)
+                new_value = sleep_val[3] + 1
+                db.edit_val(1, 'sleep_time', 'turn_cnt', new_value)
+            position = 1
         if pt1[0] < pt2[0] and pt3[0] < pt2[0]:
             cv2.putText(image, text2, (10, 50), cv2.FONT_HERSHEY_SIMPLEX , 1, (0, 0, 255), 2)
-            begin_right = time.time()
-        end_right = time.time()
-        if begin_right != 0:
-            result_right = round(end_right - begin_right),2
-            #if result_left >= 60:
-                #응애 자고있음 -> 쿼리문 날려야함
+            if position != 2:
+                print("append db")
+                sleep_val = db.find_row('sleep_time', 'user_id', 1)
+                new_value = sleep_val[3] + 1
+                db.edit_val(1, 'sleep_time', 'turn_cnt', new_value)
+            position = 2
         # if pt1[0] > pt3[0]:
         #     cv2.putText(image, text3, (10, 50), cv2.FONT_HERSHEY_SIMPLEX , 1, (0, 0, 255), 2)
+        return position
 
 
 ###카메라랑 연결...?    
@@ -63,7 +63,7 @@ capture = cv2.VideoCapture(0) #카메라 정보 받아옴
 inputWidth=320;
 inputHeight=240;
 inputScale=1.0/255;
- 
+position = 0
 #반복문을 통해 카메라에서 프레임을 지속적으로 받아옴
 while cv2.waitKey(1) <0:  #아무 키나 누르면 끝난다.
     #웹캠으로부터 영상 가져옴
@@ -110,7 +110,7 @@ while cv2.waitKey(1) <0:  #아무 키나 누르면 끝난다.
         else :
             points.append(None)
 
-    lying_detection(frame, points[3], points[14], points[6])
+    position = lying_detection(frame, points[3], points[14], points[6], position)
 
     # 각 POSE_PAIRS별로 선 그어줌 (머리 - 목, 목 - 왼쪽어깨, ...)
     # for pair in POSE_PAIRS:
