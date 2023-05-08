@@ -101,7 +101,7 @@ def lying_detection(image, pt1, pt2, pt3):
                 time_left =  round(end_left - begin_left,2)
                 print("left lying time is ", time_left)
                 #if result_left >= 60:
-                    #응애 자고있음 -> 쿼리문 날려야함
+                    #잘못된 자세로 자고있음 -> 쿼리문 날려야함
 
         # ****right****
         if pt1[0] < pt2[0] and pt3[0] < pt2[0]:
@@ -112,13 +112,15 @@ def lying_detection(image, pt1, pt2, pt3):
             if begin_right != 0:
                 time_right = round(end_right - begin_right,2)
                 print("right lying time is ", time_right)
-                #if result_left >= 60:
-                    #응애 자고있음 -> 쿼리문 날려야함
+                #if result_right >= 60:
+                    #잘못된 자세로 자고있음 -> 쿼리문 날려야함
 
         # ****prone****
         # if pt1[0] > pt3[0]:
         #     cv2.putText(image, text3, (10, 50), cv2.FONT_HERSHEY_SIMPLEX , 1, (0, 0, 255), 2)
 
+
+# main function
 sizelist = []
 net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
 capture = cv2.VideoCapture(0)
