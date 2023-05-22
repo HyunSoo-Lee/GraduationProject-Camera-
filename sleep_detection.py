@@ -22,7 +22,7 @@ def distance(ax, ay, bx, by):
     c = math.sqrt((x*x) + (y*y))
     return c
 
-def detect(gray, frame, sizelist):
+def detect(gray, frame):
     faces = faceCascade.detectMultiScale(gray, scaleFactor = 1.05, minNeighbors = 5, minSize = (100, 100), flags = cv2.CASCADE_SCALE_IMAGE)
     for(x, y, w, h)in faces:
         dlib_rect = dlib.rectangle(int(x), int(y), int(x + w), int(y + h))
@@ -31,56 +31,58 @@ def detect(gray, frame, sizelist):
         landmarks_display = landmarks[36:48]
         for idx , point in enumerate(landmarks_display):
             pos = (point[0,0], point[0,1])
-            cv2.circle(frame, pos, 2, color=(0,255,255), thickness = -1)
+            #cv2.circle(frame, pos, 2, color=(0,255,255), thickness = -1)
         shape = predictor(frame, dlib_rect)
         
-        leftR_i_top = (shape.part(38).x, shape.part(38).y)
-        leftR_i_bot = (shape.part(40).x, shape.part(40).y)
-        leftR_line = cv2.line(frame, leftR_i_top, leftR_i_bot, color=(0,255,255))
+        leftR_top = (shape.part(38).x, shape.part(38).y)
+        leftR_bot = (shape.part(40).x, shape.part(40).y)
+        #cv2.line(frame, leftR_top, leftR_bot, color=(0,255,255))
         leftR = distance(shape.part(38).x, shape.part(38).y, shape.part(40).x, shape.part(40).y)
 
-        leftL_i_top = (shape.part(37).x, shape.part(37).y)
-        leftL_i_bot = (shape.part(41).x, shape.part(41).y)
-        leftL_line = cv2.line(frame, leftL_i_top, leftL_i_bot, color=(0,255,255))
+        leftL_top = (shape.part(37).x, shape.part(37).y)
+        leftL_bot = (shape.part(41).x, shape.part(41).y)
+        #cv2.line(frame, leftL_top, leftL_bot, color=(0,255,255))
         leftL = distance(shape.part(37).x, shape.part(37).y, shape.part(41).x, shape.part(41).y)
 
-        rightR_i_top = (shape.part(44).x, shape.part(44).y)
-        rightR_i_bot = (shape.part(46).x, shape.part(46).y)
-        rightR_line = cv2.line(frame, rightR_i_top, rightR_i_bot, color=(0,255,255))
+        leftC_top = (shape.part(36).x, shape.part(36).y)
+        leftC_bot = (shape.part(39).x, shape.part(39).y)
+        #cv2.line(frame, leftC_top, leftC_bot, color=(0,255,255))
+        leftC = distance(shape.part(36).x, shape.part(36).y, shape.part(39).x, shape.part(39).y)
+
+        EAR_left = (leftR + leftL)/(2.0 * leftC)
+
+        rightR_top = (shape.part(44).x, shape.part(44).y)
+        rightR_bot = (shape.part(46).x, shape.part(46).y)
+        #cv2.line(frame, rightR_top, rightR_bot, color=(0,255,255))
         rightR = distance(shape.part(44).x, shape.part(44).y, shape.part(46).x, shape.part(46).y)
 
-        rightL_i_top = (shape.part(43).x, shape.part(43).y)
-        rightL_i_bot = (shape.part(47).x, shape.part(47).y)
-        rightL_line = cv2.line(frame, rightL_i_top, rightL_i_bot, color=(0,255,255))
+        rightL_top = (shape.part(43).x, shape.part(43).y)
+        rightL_bot = (shape.part(47).x, shape.part(47).y)
+        #cv2.line(frame, rightL_top, rightL_bot, color=(0,255,255))
         rightL = distance(shape.part(43).x, shape.part(43).y, shape.part(47).x, shape.part(47).y)
 
-        left = (leftR + leftL)/2
-        right = (rightR + rightL)/2
-        print("left eye size is {} \nright eye size is {}\n\n".format(left, right))
+        rightC_top = (shape.part(42).x, shape.part(42).y)
+        rightC_bot = (shape.part(45).x, shape.part(45).y)
+        #cv2.line(frame, rightC_top, rightC_bot, color=(0,255,255))
+        rightC = distance(shape.part(42).x, shape.part(42).y, shape.part(45).x, shape.part(45).y)
 
-        eye_avg = (left + right) / 2
-        while len(sizelist) != 500:
-            sizelist.append(eye_avg)
-            break
-        sorted_size = sorted(sizelist)
-        max_values = sorted_size[-50:]
-        average = sum(max_values) / len(max_values)
+        EAR_right = (rightR + rightL)/(2.0 * rightC)
 
-        cv2.putText(frame, str(average), (10, 50), cv2.FONT_HERSHEY_SIMPLEX , 1, (0, 0, 255), 2)
+        EAR = round((EAR_right + EAR_left) / 2.0, 2)
+        cv2.putText(frame, str(EAR), (10, 50), cv2.FONT_HERSHEY_SIMPLEX , 1, (221, 160, 221))
 
 
     return frame
 
 video_capture = cv2.VideoCapture(0)
-sizelist = []
 
 while True:
     _,frame = video_capture.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    canvas = detect(gray,frame,sizelist)
+    canvas = detect(gray,frame)
 
     cv2.imshow("test", canvas)
-    print(sizelist)
+    #print(sizelist)
     time.sleep(0.25)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
