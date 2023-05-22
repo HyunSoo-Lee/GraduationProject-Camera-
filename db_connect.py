@@ -31,6 +31,7 @@ def find_row(table_name, column_name, user_name, host = host, user = user, passw
     return value
 
 def find_id(table_name, column_name, user_name, host = host, user = user, password = password, database = database):
+    # 데이터베이스 연결
     connection = pymysql.connect(host=host, user=user, password=password, database=database)
 
     # 커서 생성
@@ -54,12 +55,15 @@ def find_id(table_name, column_name, user_name, host = host, user = user, passwo
     return value
 
 def edit_val(user_id, table_name, column_name, new_value, host = host, user = user, password = password, database = database):
+    # 데이터베이스 연결
     connection = pymysql.connect(host=host, user=user, password=password, database=database)
-     # 커서 생성
+    
+    # 커서 생성
     cursor = connection.cursor()
 
     # 쿼리 실행
     query = f"UPDATE {table_name} SET {column_name} = {new_value} WHERE user_id = {user_id}"
+    print(query)
     cursor.execute(query) 
 
     # 변경 사항 저장
