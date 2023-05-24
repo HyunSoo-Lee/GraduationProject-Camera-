@@ -3,6 +3,8 @@ import dlib
 import cv2  
 import math
 import time 
+import current_time as curtime
+import db_connect as db
 predictor = dlib.shape_predictor('./shape_predictor_68_face_landmarks.dat') 
 #faceCascade = cv2.CascadeClassifier('/home/pi/opencv/opencv-4.6.0/data/haarcascades/haarcascade_frontalface_default.xml')
 faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -88,12 +90,16 @@ video_capture = cv2.VideoCapture(0)
 
 val = False
 t = 0
+startt = 0
+endt = 0
 time_arr = [0,0]
 while True:
     if time_arr[0] != 0 and time_arr[1] != 0:
         sleep_time = time_arr[1] - time_arr[0]
         sleep_time = int(sleep_time)
         print(sleep_time , '동안 눈을 감고 있었습니다.')
+        db.edit_val(1, 'sleep_time', 'startt', startt)
+        db.edit_val(1, 'sleep_time', 'endt', endt)
         time_arr = [0,0]
     _,frame = video_capture.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -104,11 +110,13 @@ while True:
     #print(sizelist)
     time.sleep(0.25)
     if arr[2] != 0 and val == True:
-        print('Blink!', arr[2])
+        #print('Blink!', arr[2])
         time_arr[0] = arr[2]
+        startt = curtime.get_time()
     if arr[2] != 0 and val == False:
-        print('Blink!', arr[2])
+        #print('Blink!', arr[2])
         time_arr[1] = arr[2]
+        endt = curtime.get_time()
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
