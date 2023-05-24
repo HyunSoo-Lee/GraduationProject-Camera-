@@ -22,7 +22,7 @@ def distance(ax, ay, bx, by):
     c = math.sqrt((x*x) + (y*y))
     return c
 
-def detect(gray, frame, val):
+def detect(gray, frame, val, t):
     faces = faceCascade.detectMultiScale(gray, scaleFactor = 1.05, minNeighbors = 5, minSize = (100, 100), flags = cv2.CASCADE_SCALE_IMAGE)
     for(x, y, w, h)in faces:
         dlib_rect = dlib.rectangle(int(x), int(y), int(x + w), int(y + h))
@@ -74,28 +74,41 @@ def detect(gray, frame, val):
         if EAR <= 0.2:
             if val == False:
                 val = not val
+                t = time.time()
             else:
                 continue
         else:
             if val == True:
                 val = not val
+                t = time.time()
             continue
-    return frame, val
+    return frame, val, t
 
 video_capture = cv2.VideoCapture(0)
 
 val = False
+t = 0
+time_arr = [0,0]
 while True:
+    if time_arr[0] != 0 and time_arr[1] != 0:
+        sleep_time = time_arr[1] - time_arr[0]
+        sleep_time = int(sleep_time)
+        print(sleep_time , '동안 눈을 감고 있었습니다.')
+        time_arr = [0,0]
     _,frame = video_capture.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    arr = detect(gray,frame, val)
+    arr = detect(gray,frame, val, t)
     canvas = arr[0]
     val = arr[1]
     cv2.imshow("test", canvas)
     #print(sizelist)
     time.sleep(0.25)
-    print(val)
-    
+    if arr[2] != 0 and val == True:
+        print('Blink!', arr[2])
+        time_arr[0] = arr[2]
+    if arr[2] != 0 and val == False:
+        print('Blink!', arr[2])
+        time_arr[1] = arr[2]
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
