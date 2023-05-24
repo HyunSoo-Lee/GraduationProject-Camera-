@@ -22,7 +22,7 @@ def distance(ax, ay, bx, by):
     c = math.sqrt((x*x) + (y*y))
     return c
 
-def detect(gray, frame):
+def detect(gray, frame, val):
     faces = faceCascade.detectMultiScale(gray, scaleFactor = 1.05, minNeighbors = 5, minSize = (100, 100), flags = cv2.CASCADE_SCALE_IMAGE)
     for(x, y, w, h)in faces:
         dlib_rect = dlib.rectangle(int(x), int(y), int(x + w), int(y + h))
@@ -67,24 +67,35 @@ def detect(gray, frame):
         rightC = distance(shape.part(42).x, shape.part(42).y, shape.part(45).x, shape.part(45).y)
 
         EAR_right = (rightR + rightL)/(2.0 * rightC)
-
         EAR = round((EAR_right + EAR_left) / 2.0, 2)
         cv2.putText(frame, str(EAR), (10, 50), cv2.FONT_HERSHEY_SIMPLEX , 1, (221, 160, 221))
 
-
-    return frame
+        #print(EAR)
+        if EAR <= 0.2:
+            if val == False:
+                val = not val
+            else:
+                continue
+        else:
+            if val == True:
+                val = not val
+            continue
+    return frame, val
 
 video_capture = cv2.VideoCapture(0)
 
+val = False
 while True:
     _,frame = video_capture.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    canvas = detect(gray,frame)
-
+    arr = detect(gray,frame, val)
+    canvas = arr[0]
+    val = arr[1]
     cv2.imshow("test", canvas)
     #print(sizelist)
     time.sleep(0.25)
-
+    print(val)
+    
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
