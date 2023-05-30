@@ -72,3 +72,27 @@ def edit_val(user_id, table_name, column_name, new_value, host = host, user = us
     # 연결 종료
     cursor.close()
     connection.close()
+
+def sleep_ins(user_id, startt, endt, cnt, host = host, user = user, password = password, database = database):
+    user_val = find_row('user', user_id, '1')
+    id = user_val[0]
+    baby_name = '\'' + user_val[4]+ '\''
+
+    # 데이터베이스 연결
+    connection = pymysql.connect(host=host, user=user, password=password, database=database)
+    
+    # 커서 생성
+    cursor = connection.cursor()
+
+    # 쿼리 실행
+    query = f"INSERT INTO sleep_time (user_id, startt, endt, turn_cnt, user_baby_name) VALUES ({id}, {startt}, {endt}, {cnt}, {baby_name})"
+    print(query)
+    cursor.execute(query) 
+
+    # 변경 사항 저장
+    connection.commit()
+
+    # 연결 종료
+    cursor.close()
+    connection.close()
+

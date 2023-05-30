@@ -97,11 +97,13 @@ while True:
     if time_arr[0] != 0 and time_arr[1] != 0:
         sleep_time = time_arr[1] - time_arr[0]
         sleep_time = int(sleep_time)
+        if sleep_time <= 0:
+            time_arr = [0,0]
+            continue    
         print(sleep_time , '동안 눈을 감고 있었습니다.')
         #여기 if문 달아서 30초 지났을때 잠들었다고 판정해주어야 함.
         if sleep_time >= 10:
-            db.edit_val(1, 'sleep_time', 'startt', startt)
-            db.edit_val(1, 'sleep_time', 'endt', endt)
+            db.sleep_ins(1, startt, endt, 0)
         time_arr = [0,0]
     _,frame = video_capture.read()
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

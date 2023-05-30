@@ -3,22 +3,14 @@ from datetime import datetime
 from pytz import timezone
 
 #기본적인 row return
-user_val = db.find_row('user', 'nickname', 'JHM')
+user_val = db.find_row('user', 'user_id', '2')
 print(user_val)
+print(user_val[0])
 print("/////////////////")
 
 #user id 가져오기
 id = db.find_id('user', 'nickname', 'JHM')
 print(id)
-print("/////////////////")
-
-#특정 값 바꾸기
-sleep_val = db.find_row('sleep_time', 'user_id', id)
-#new_value = sleep_val[3] + 1
-new_value = 0
-db.edit_val(id, 'sleep_time', 'turn_cnt', new_value)
-new_sleep_val = db.find_row('sleep_time', 'user_id', id)
-print(new_sleep_val)
 print("/////////////////")
 
 def get_korea_current_time():
@@ -47,3 +39,5 @@ time = '\'' + formatted_time + '\''
 print(time)
 db.edit_val(id, 'sleep_time', 'endt', time)
 new_sleep_val = db.find_row('sleep_time', 'user_id', id)
+
+db.sleep_ins(1, time,time, 0)
