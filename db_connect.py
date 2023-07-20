@@ -85,7 +85,7 @@ def sleep_ins(user_id, startt, endt, cnt, host = host, user = user, password = p
     cursor = connection.cursor()
 
     # 쿼리 실행
-    query = f"INSERT INTO sleep_time (user_id, startt, endt, turn_cnt, user_baby_name) VALUES ({id}, {startt}, {endt}, {cnt}, {baby_name})"
+    query = f"INSERT INTO sleep_time (user_id, startt, endt, turn_cnt, baby_name) VALUES ({id}, {startt}, {endt}, {cnt}, {baby_name})"
     print(query)
     cursor.execute(query) 
 
